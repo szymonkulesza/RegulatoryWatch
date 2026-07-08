@@ -1,0 +1,132 @@
+import { RegulatorySource } from './types';
+
+export const REGULATORY_SOURCES: RegulatorySource[] = [
+  {
+    id: 'ec-eudralex-vol4-gmp',
+    source: 'European Commission',
+    area: 'EudraLex Volume 4 – GMP',
+    url: 'https://health.ec.europa.eu/medicinal-products/eudralex/eudralex-volume-4_en',
+  },
+  {
+    id: 'ema-eudragmdp',
+    source: 'EMA',
+    area: 'EudraGMDP database',
+    url: 'http://eudragmdp.ema.europa.eu/inspections/displayWelcome.do',
+  },
+  {
+    id: 'ec-eudralex-latest',
+    source: 'European Commission',
+    area: 'EudraLex – latest medicinal products updates',
+    url: 'https://health.ec.europa.eu/medicinal-products/latest-updates_en',
+  },
+  {
+    id: 'ema-inspection-trends',
+    source: 'EMA',
+    area: 'MA inspection trend reports',
+    url: 'https://www.ema.europa.eu/en/about-us/annual-reports-work-programmes',
+  },
+  {
+    id: 'ema-biosimilars',
+    source: 'EMA',
+    area: 'EU Biosimilar medicinal products',
+    url: 'https://www.ema.europa.eu/en/human-regulatory/overview/biosimilarmedicines-overview',
+  },
+  {
+    id: 'pl-sejm-prawo-farmaceutyczne',
+    source: 'Poland – Sejm / GIF',
+    area: 'Pharmaceutical Law (Prawo farmaceutyczne)',
+    url: 'https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=wdu20011261381',
+  },
+  {
+    id: 'pl-gif-wiadomosci',
+    source: 'Poland – GIF',
+    area: 'GIF announcements & interpretations',
+    url: 'https://www.gov.pl/web/gif/wiadomosci',
+  },
+  {
+    id: 'fda-21cfr-part11',
+    source: 'FDA',
+    area: '21 CFR Part 11',
+    url: 'https://www.fda.gov/regulatory-information/search-fda-guidance-documents/part-11-electronic-records-electronic-signatures-scope-and-application',
+  },
+  {
+    id: 'fda-21cfr-part210-211',
+    source: 'FDA',
+    area: '21 CFR Parts 210/211',
+    url: 'https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfcfr/CFRSearch.cfm',
+  },
+  {
+    id: 'fda-21cfr-part600',
+    source: 'FDA',
+    area: '21 CFR Part 600',
+    url: 'https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfcfr/CFRSearch.cfm',
+  },
+  {
+    id: 'fda-cder-guidance',
+    source: 'FDA',
+    area: 'CDER – guidance / presentations',
+    url: 'https://www.fda.gov/about-fda/center-drug-evaluation-and-research-cder/meeting-presentations-drugs',
+  },
+  {
+    id: 'fda-cber-updates',
+    source: 'FDA',
+    area: 'CBER updates',
+    url: 'https://www.fda.gov/about-fda/fda-organization/center-biologics-evaluation-and-research-cber',
+  },
+  {
+    id: 'fda-warning-letters',
+    source: 'FDA',
+    area: 'Warning Letter database',
+    url: 'https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/compliance-actions-and-activities/warning-letters',
+  },
+  {
+    id: 'mhra-inspectorate-blog',
+    source: 'MHRA',
+    area: 'MHRA Inspectorate blog',
+    url: 'https://mhrainspectorate.blog.gov.uk/',
+  },
+  {
+    id: 'health-canada-updates',
+    source: 'Health Canada',
+    area: 'GMP / regulatory updates',
+    url: 'https://www.canada.ca/en/health-canada/services/drugs-health-products/compliance-enforcement/what-new.html',
+  },
+  {
+    id: 'ich-quality-guidelines',
+    source: 'ICH',
+    area: 'ICH Q1A–Q14',
+    url: 'https://www.ich.org/page/quality-guidelines',
+  },
+  {
+    id: 'pics-news',
+    source: 'PIC/S',
+    area: 'PIC/S news',
+    url: 'https://picscheme.org/en/news',
+  },
+  {
+    id: 'pics-newsletter',
+    source: 'PIC/S',
+    area: 'PIC/S newsletter',
+    url: 'https://picscheme.org/en/newsletter',
+  },
+  {
+    id: 'edqm-portal',
+    source: 'EDQM',
+    area: 'EU Pharmacopeia portal',
+    url: 'https://sign.edqm.eu/cas/login',
+    requiresLogin: true,
+  },
+  {
+    id: 'usp-portal',
+    source: 'USP',
+    area: 'US Pharmacopeia portal',
+    url: 'https://login.usp.org/cas/login',
+    requiresLogin: true,
+  },
+  {
+    id: 'fda-guidance-search',
+    source: 'FDA',
+    area: 'FDA guidance search portal',
+    url: 'https://www.fda.gov/regulatory-information/search-fda-guidance-documents',
+  },
+];

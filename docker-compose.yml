@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  fda-agent:
+    build: .
+    container_name: fda-warning-agent
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./recipients.json:/app/recipients.json:ro
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

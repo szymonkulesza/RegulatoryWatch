@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDA Warning Letter Monitor</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f0f2f5;
+    color: #1a1a2e;
+    min-height: 100vh;
+  }
+
+  header {
+    background: #003366;
+    color: #fff;
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  header h1 { font-size: 20px; font-weight: 600; }
+  header p { font-size: 13px; opacity: 0.75; margin-top: 2px; }
+
+  .container { max-width: 960px; margin: 32px auto; padding: 0 20px; }
+
+  /* Search panel */
+  .search-panel {
+    background: #fff;
+    border-radius: 10px;
+    padding: 28px 32px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin-bottom: 28px;
+  }
+  .search-panel h2 { font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #003366; }
+  .controls { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+
+  label { font-size: 14px; color: #444; }
+  select, input[type=number] {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    background: #fff;
+  }
+
+  .btn {
+    padding: 10px 22px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, opacity 0.15s;
+  }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn-primary { background: #003366; color: #fff; }
+  .btn-primary:not(:disabled):hover { background: #004080; }
+  .btn-success { background: #1a7a4a; color: #fff; }
+  .btn-success:not(:disabled):hover { background: #21995d; }
+  .btn-sm { padding: 6px 14px; font-size: 13px; }
+
+  /* Progress */
+  .progress-bar-wrap {
+    height: 6px; background: #e0e0e0; border-radius: 3px; overflow: hidden; margin: 18px 0 8px;
+  }
+  .progress-bar {
+    height: 100%; background: #003366; border-radius: 3px;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:0.5 } }
+  .progress-text { font-size: 13px; color: #555; }
+
+  /* Results */
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .results-header h2 { font-size: 16px; font-weight: 600; color: #003366; }
+  .selection-controls { display: flex; gap: 8px; }
+
+  /* Section labels */
+  .section-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #666;
+    margin: 20px 0 10px;
+  }
+
+  /* Card */
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    margin-bottom: 10px;
+    border: 2px solid transparent;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .card.selected { border-color: #003366; }
+  .card.excluded { opacity: 0.45; }
+
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 20px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .card-checkbox { margin-top: 3px; width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; accent-color: #003366; }
+
+  .card-meta { flex: 1; min-width: 0; }
+  .card-company { font-size: 15px; font-weight: 600; margin-bottom: 5px; }
+  .card-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 4px; }
+  .tag {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .tag-wl { background: #fde8e8; color: #c0392b; }
+  .tag-483 { background: #fff3cd; color: #856404; }
+  .tag-cat { background: #e8f4f0; color: #1a7a4a; }
+  .card-date-country { font-size: 12px; color: #777; }
+
+  .expand-icon {
+    font-size: 18px;
+    color: #999;
+    flex-shrink: 0;
+    transition: transform 0.2s;
+    margin-top: 2px;
+  }
+  .card.open .expand-icon { transform: rotate(180deg); }
+
+  .card-body {
+    display: none;
+    padding: 0 20px 18px 50px;
+    border-top: 1px solid #f0f0f0;
+  }
+  .card.open .card-body { display: block; }
+
+  .findings-title { font-size: 13px; font-weight: 600; color: #333; margin: 14px 0 6px; }
+  .findings ul { padding-left: 18px; }
+  .findings ul li { font-size: 13px; margin-bottom: 5px; line-height: 1.5; }
+
+  .cfr { font-size: 12px; color: #555; margin-top: 8px; }
+  .cfr strong { color: #333; }
+
+  .lesson {
+    background: #f0f7ff;
+    border-left: 3px solid #2980b9;
+    padding: 9px 13px;
+    margin-top: 12px;
+    font-size: 13px;
+    color: #1a4a70;
+    border-radius: 0 4px 4px 0;
+  }
+  .lesson strong { display: block; margin-bottom: 3px; }
+
+  .view-link {
+    display: inline-block;
+    margin-top: 12px;
+    font-size: 13px;
+    color: #003366;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .view-link:hover { text-decoration: underline; }
+
+  /* Send panel */
+  .send-panel {
+    background: #fff;
+    border-radius: 10px;
+    padding: 24px 28px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin-top: 28px;
+  }
+  .send-panel h2 { font-size: 16px; font-weight: 600; color: #003366; margin-bottom: 14px; }
+  .recipients-list { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+  .recipient-chip {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 14px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s;
+    background: #fff;
+  }
+  .recipient-chip input { accent-color: #003366; cursor: pointer; }
+  .recipient-chip.active { background: #e8eef7; border-color: #003366; }
+
+  .send-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .send-summary { font-size: 13px; color: #555; }
+
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    background: #1a7a4a;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    display: none;
+    z-index: 999;
+  }
+  .toast.error { background: #c0392b; }
+  .toast.show { display: block; animation: fadeInUp 0.25s ease; }
+  @keyframes fadeInUp { from { opacity:0; transform:translateY(10px) } to { opacity:1; transform:translateY(0) } }
+
+  .empty-state { text-align: center; padding: 48px 20px; color: #888; font-size: 15px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>FDA Warning Letter Monitor</h1>
+    <p>Biological & Pharmaceutical Manufacturing · Data Integrity · CSV · Sterile Manufacturing</p>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Search panel -->
+  <div class="search-panel">
+    <h2>Search FDA Documents</h2>
+    <div class="controls">
+      <label>
+        Look back &nbsp;
+        <input type="number" id="daysBack" value="7" min="1" max="30" style="width:70px">
+        &nbsp;days
+      </label>
+      <button class="btn btn-primary" id="searchBtn" onclick="startSearch()">
+        🔍 Search for FDA Warning Letters &amp; 483s
+      </button>
+    </div>
+    <div id="progressWrap" style="display:none">
+      <div class="progress-bar-wrap"><div class="progress-bar"></div></div>
+      <div class="progress-text" id="progressText">Starting...</div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div id="resultsSection" style="display:none">
+    <div class="results-header">
+      <h2 id="resultsTitle">Results</h2>
+      <div class="selection-controls">
+        <button class="btn btn-sm" onclick="selectAll()">Select all</button>
+        <button class="btn btn-sm" onclick="selectNone()">Deselect all</button>
+      </div>
+    </div>
+    <div id="cardList"></div>
+
+    <!-- Send panel -->
+    <div class="send-panel" id="sendPanel">
+      <h2>Send Digest</h2>
+      <div class="recipients-list" id="recipientsList"></div>
+      <div class="send-row">
+        <button class="btn btn-success" id="sendBtn" onclick="sendDigest()">
+          ✉️ Send Selected to Recipients
+        </button>
+        <span class="send-summary" id="sendSummary"></span>
+      </div>
+    </div>
+  </div>
+
+  <div id="emptyState" style="display:none" class="empty-state">
+    No relevant pharma/biotech documents found in the selected time window.<br>
+    <small>Try increasing the look-back period.</small>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let currentJobId = null;
+let pollInterval = null;
+let allDocs = [];
+let recipients = [];
+
+async function loadRecipients() {
+  const res = await fetch('/api/recipients');
+  const data = await res.json();
+  recipients = data.recipients;
+  renderRecipients();
+}
+
+function renderRecipients() {
+  const el = document.getElementById('recipientsList');
+  el.innerHTML = recipients.map((r, i) => `
+    <label class="recipient-chip active" id="chip_${i}" onclick="toggleChip(${i})">
+      <input type="checkbox" id="rcp_${i}" checked onclick="event.stopPropagation(); updateChip(${i})">
+      <span>${r.name} <span style="color:#999;font-size:11px">&lt;${r.email}&gt;</span></span>
+    </label>
+  `).join('');
+}
+
+function toggleChip(i) {
+  const cb = document.getElementById('rcp_' + i);
+  cb.checked = !cb.checked;
+  updateChip(i);
+}
+function updateChip(i) {
+  const cb = document.getElementById('rcp_' + i);
+  const chip = document.getElementById('chip_' + i);
+  chip.classList.toggle('active', cb.checked);
+  updateSendSummary();
+}
+
+async function startSearch() {
+  const days = parseInt(document.getElementById('daysBack').value) || 7;
+  const btn = document.getElementById('searchBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Searching...';
+  document.getElementById('progressWrap').style.display = 'block';
+  document.getElementById('resultsSection').style.display = 'none';
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('cardList').innerHTML = '';
+  allDocs = [];
+
+  const res = await fetch('/api/search?days_back=' + days, { method: 'POST' });
+  const data = await res.json();
+  currentJobId = data.job_id;
+
+  if (pollInterval) clearInterval(pollInterval);
+  pollInterval = setInterval(pollStatus, 2500);
+}
+
+async function pollStatus() {
+  if (!currentJobId) return;
+  try {
+    const res = await fetch('/api/status/' + currentJobId);
+    const job = await res.json();
+    document.getElementById('progressText').textContent = job.progress;
+
+    if (job.status === 'done') {
+      clearInterval(pollInterval);
+      finishSearch(job.documents);
+    } else if (job.status === 'error') {
+      clearInterval(pollInterval);
+      showToast('Error: ' + job.error, true);
+      resetSearchBtn();
+    }
+  } catch(e) {
+    // transient network hiccup — keep polling
+  }
+}
+
+function finishSearch(docs) {
+  allDocs = docs;
+  resetSearchBtn();
+  document.getElementById('progressWrap').style.display = 'none';
+
+  if (!docs || docs.length === 0) {
+    document.getElementById('emptyState').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('resultsSection').style.display = 'block';
+  document.getElementById('resultsTitle').textContent =
+    `Results — ${docs.length} relevant document${docs.length !== 1 ? 's' : ''} found`;
+  renderCards(docs);
+  updateSendSummary();
+}
+
+function renderCards(docs) {
+  const wl = docs.filter(d => d.document_type === 'Warning Letter');
+  const f483 = docs.filter(d => d.document_type === 'Form 483');
+  let html = '';
+
+  if (wl.length) {
+    html += `<div class="section-label">Warning Letters (${wl.length})</div>`;
+    html += wl.map(d => cardHtml(d)).join('');
+  }
+  if (f483.length) {
+    html += `<div class="section-label">Form 483 Observations (${f483.length})</div>`;
+    html += f483.map(d => cardHtml(d)).join('');
+  }
+
+  document.getElementById('cardList').innerHTML = html;
+  // start all checked
+  document.querySelectorAll('.card-checkbox').forEach(cb => { cb.checked = true; });
+  document.querySelectorAll('.card').forEach(c => c.classList.add('selected'));
+}
+
+function cardHtml(doc) {
+  const id = btoa(doc.url).replace(/[^a-zA-Z0-9]/g,'').substring(0,20);
+  const badgeClass = doc.document_type === 'Warning Letter' ? 'tag-wl' : 'tag-483';
+  const catTags = (doc.categories||[]).map(c =>
+    `<span class="tag tag-cat">${c}</span>`).join('');
+  const country = doc.country ? ` &mdash; ${doc.country}` : '';
+  const findings = (doc.key_findings||[]).map(f => `<li>${f}</li>`).join('');
+  const cfr = doc.cfr_citations && doc.cfr_citations.length
+    ? `<div class="cfr"><strong>CFR Citations:</strong> ${doc.cfr_citations.join(', ')}</div>` : '';
+  const lesson = doc.lesson
+    ? `<div class="lesson"><strong>Lesson for Industry</strong>${doc.lesson}</div>` : '';
+
+  return `
+  <div class="card selected" id="card_${id}" data-url="${escHtml(doc.url)}">
+    <div class="card-header" onclick="toggleCard('${id}')">
+      <input type="checkbox" class="card-checkbox" checked
+        onclick="event.stopPropagation(); toggleSelect('${id}')" title="Include in digest">
+      <div class="card-meta">
+        <div class="card-company">${escHtml(doc.company || 'Unknown Company')}</div>
+        <div class="card-tags">
+          <span class="tag ${badgeClass}">${escHtml(doc.document_type)}</span>
+          ${catTags}
+        </div>
+        <div class="card-date-country">${escHtml(doc.date || '')}${country}</div>
+      </div>
+      <span class="expand-icon">⌄</span>
+    </div>
+    <div class="card-body">
+      <div class="findings">
+        <div class="findings-title">Key Findings</div>
+        <ul>${findings || '<li>No findings extracted.</li>'}</ul>
+      </div>
+      ${cfr}
+      ${lesson}
+      <a href="${escHtml(doc.url)}" class="view-link" target="_blank" rel="noopener">
+        View Original Document →
+      </a>
+    </div>
+  </div>`;
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+            .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function toggleCard(id) {
+  const card = document.getElementById('card_' + id);
+  card.classList.toggle('open');
+}
+
+function toggleSelect(id) {
+  const card = document.getElementById('card_' + id);
+  const cb = card.querySelector('.card-checkbox');
+  card.classList.toggle('selected', cb.checked);
+  card.classList.toggle('excluded', !cb.checked);
+  updateSendSummary();
+}
+
+function selectAll() {
+  document.querySelectorAll('.card').forEach(c => {
+    c.classList.add('selected');
+    c.classList.remove('excluded');
+    c.querySelector('.card-checkbox').checked = true;
+  });
+  updateSendSummary();
+}
+
+function selectNone() {
+  document.querySelectorAll('.card').forEach(c => {
+    c.classList.remove('selected');
+    c.classList.add('excluded');
+    c.querySelector('.card-checkbox').checked = false;
+  });
+  updateSendSummary();
+}
+
+function selectedUrls() {
+  return [...document.querySelectorAll('.card.selected')].map(c => c.dataset.url);
+}
+
+function selectedRecipients() {
+  return recipients
+    .filter((_, i) => document.getElementById('rcp_' + i)?.checked)
+    .map(r => r.email);
+}
+
+function updateSendSummary() {
+  const nDocs = selectedUrls().length;
+  const nRcp = selectedRecipients().length;
+  document.getElementById('sendSummary').textContent =
+    `${nDocs} document${nDocs!==1?'s':''} · ${nRcp} recipient${nRcp!==1?'s':''}`;
+  document.getElementById('sendBtn').disabled = nDocs === 0 || nRcp === 0;
+}
+
+async function sendDigest() {
+  const urls = selectedUrls();
+  const rcps = selectedRecipients();
+  if (!urls.length || !rcps.length) return;
+
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Sending...';
+
+  try {
+    const res = await fetch('/api/send', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        job_id: currentJobId,
+        selected_urls: urls,
+        recipient_emails: rcps,
+      }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      showToast(`✓ Digest sent — ${data.document_count} documents to ${data.recipient_count} recipient(s)`);
+    } else {
+      showToast('Send failed: ' + (data.detail || 'Unknown error'), true);
+    }
+  } catch(e) {
+    showToast('Network error while sending', true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✉️ Send Selected to Recipients';
+    updateSendSummary();
+  }
+}
+
+function resetSearchBtn() {
+  const btn = document.getElementById('searchBtn');
+  btn.disabled = false;
+  btn.textContent = '🔍 Search for FDA Warning Letters & 483s';
+}
+
+function showToast(msg, isError=false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (isError ? ' error' : '');
+  setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+// Init
+loadRecipients();
+</script>
+</body>
+</html>
