@@ -105,7 +105,7 @@ export default function Home() {
       <header className="mb-8">
         <h1 className="text-2xl font-bold text-slate-900">Pharma Regulatory Watch</h1>
         <p className="mt-1 text-sm text-slate-600">
-          Monitoring changes in pharmaceutical industry legal regulations — Rezon Bio
+          Monitoring changes in pharmaceutical industry legal regulations — Rezon Bio, built by Szymon Kulesza
         </p>
       </header>
 

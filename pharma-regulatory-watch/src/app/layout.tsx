@@ -4,7 +4,7 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'Pharma Regulatory Watch — Rezon Bio',
   description:
-    'Monitoring changes in pharmaceutical industry legal regulations for Rezon Bio.',
+    'Monitoring changes in pharmaceutical industry legal regulations for Rezon Bio. Built by Szymon Kulesza.',
 };
 
 export default function RootLayout({
