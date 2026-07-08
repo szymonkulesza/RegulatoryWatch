@@ -28,6 +28,15 @@ export function ReviseStatus({ statuses }: Props) {
               <span>
                 <span className="font-medium">{s.source}</span> — source unavailable
                 {s.error ? `: ${s.error}` : ''}
+                <br />
+                <a
+                  href={s.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-xs text-red-500 underline underline-offset-2 hover:text-red-600"
+                >
+                  {s.url}
+                </a>
               </span>
             </li>
           ))}

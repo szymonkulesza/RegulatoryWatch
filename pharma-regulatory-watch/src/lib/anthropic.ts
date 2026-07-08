@@ -16,9 +16,10 @@ function getClient(): Anthropic {
   if (client) return client;
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    throw new Error(
-      'ANTHROPIC_API_KEY is not set. Add it to .env.local (see .env.local.example).'
-    );
+    const hint = process.env.VERCEL
+      ? 'Add it in Vercel → Project Settings → Environment Variables, then redeploy (env var changes do not apply to existing deployments).'
+      : 'Add it to .env.local (see .env.local.example), then restart the dev server.';
+    throw new Error(`ANTHROPIC_API_KEY is not set. ${hint}`);
   }
   client = new Anthropic({ apiKey });
   return client;
